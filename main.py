@@ -1,13 +1,14 @@
 from uagents import Bureau, Context
-from AirplaneAgent import AirplaneAgent
+
 from ATCAgent import ATCAgent
+from AirplaneAgent import AirplaneAgent
 from models import CollisionAdjustment, PositionReport
 
 bureau = Bureau()
 
-airplane1 = AirplaneAgent(name="airplane1", seed="airplane1_seed", coordinates=(6, 6), speed=2.0,
+airplane1 = AirplaneAgent(name="airplane1", seed="airplane1_seed", coordinates=(10, 1), speed=1.0,
                           landing_position=(10, 10))
-airplane2 = AirplaneAgent(name="airplane2", seed="airplane2_seed", coordinates=(8, 8), speed=1.0,
+airplane2 = AirplaneAgent(name="airplane2", seed="airplane2_seed", coordinates=(1, 1), speed=1.0,
                           landing_position=(10, 10))
 air_traffic_control = ATCAgent(name="air_traffic_control", landing_position=(10, 10), airplanes=[airplane1, airplane2])
 
@@ -50,15 +51,11 @@ async def handle_position_report(ctx: Context, sender: str, msg: PositionReport)
     if airplane:
         airplane_name = airplane.name
         if msg.position == air_traffic_control.landing_position:
-            await ctx.send(air_traffic_control.address,
-                           CollisionAdjustment(message="Landing permission granted.", new_position=None))
+            air_traffic_control.mark_landed(sender)
             ctx.logger.info(f"Landing permission granted for {airplane_name} at position {msg.position}.")
-            await air_traffic_control.mark_landed(sender)
         else:
             ctx.logger.info(f"{airplane_name} not at landing position yet. {msg.position}")
             await air_traffic_control.check_for_collisions(ctx)
-    else:
-        ctx.logger.info(f"{sender} is not in flying")
 
 
 if __name__ == "__main__":

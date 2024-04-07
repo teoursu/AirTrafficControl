@@ -24,7 +24,7 @@ class ATCAgent(Agent):
         self.name_to_id[airplane.name] = airplane.address
         self.airplanes[airplane.address] = airplane
 
-    async def mark_landed(self, airplane_id):
+    def mark_landed(self, airplane_id):
         if airplane_id in self.airplanes:
             airplane = self.airplanes[airplane_id]
             airplane.has_landed = True
